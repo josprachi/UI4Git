@@ -1,70 +1,77 @@
 public class GIT_CMD:GLib.Object{
 public string RepoToCheck{
-	get { print("here");return RepoToCheck; }
-	set { RepoToCheck= value; }
+	get; //{ print("here");return RepoToCheck; }
+	set;//{ RepoToCheck= value; }
 }	
 public static int main (string[] args) {
 	 
 	GIT_CMD cmd= new GIT_CMD();
-	cmd.getStatus(args);
-	/*
-	try {
-		string[] spawn_args = {"git", "status"};
-		string[] spawn_env = Environ.get ();
-		 
-		string ls_stdout;
-		string ls_stderr;
-		int ls_status;
-		print("Please enter path");
-		
-		string input = stdin.read_line();  
-		//RepoToCheck=input;
-		//print("%s=> RepoTocheck",RepoToCheck);
-		Process.spawn_sync (args[1],
-							spawn_args,
-							spawn_env,
-							SpawnFlags.SEARCH_PATH,
-							null,
-							out ls_stdout,
-							out ls_stderr,
-							out ls_status);		
-		print("input => %s",input);
-		print (ls_stdout);
-	} 
-	catch (SpawnError e) {
-		print ("Error: %s\n", e.message);
-	}
-*/
+	cmd.init();
+	cmd.doOperation("checkLog");
 	return 0;
 }
-
-public void getStatus(string[] args)
+public void init()
 {
-	try {
-		string[] spawn_args = {"git", "status"};
-		string[] spawn_env = Environ.get ();
-		 
+	print("Please enter path");
+		
+	string input = stdin.read_line();  
+	openRepository(input);
+
+}
+public void openRepository(string _strRepository)
+{
+	this.RepoToCheck=_strRepository;
+}
+public void doOperation(string operation)
+{ string[] spawn_args;
+  string[] operation_Env=Environ.get();
+  /* string ls_stdout;
+  string ls_stderr;
+  int ls_status;*/
+	switch (operation) 
+	{
+	case "checkStatus":
+	spawn_args = getStatus();	
+		break;
+	case "checkLog":
+	spawn_args = showLog();
+	break;		
+	default:
+	spawn_args=getHelp();
+		break;
+	}
+	runCommand(spawn_args,operation_Env);
+}
+public void runCommand(string[] spawn_args, string[] operation_Env)
+{
+	try {	
 		string ls_stdout;
 		string ls_stderr;
 		int ls_status;
-		print("Please enter path");
-		
-		string input = stdin.read_line();  
-		//RepoToCheck=input;
-		//print("%s=> RepoTocheck",RepoToCheck);
-		Process.spawn_sync (args[1],
+		Process.spawn_sync (this.RepoToCheck,
 							spawn_args,
-							spawn_env,
+							operation_Env,
 							SpawnFlags.SEARCH_PATH,
 							null,
 							out ls_stdout,
 							out ls_stderr,
-							out ls_status);		
-		print("input => %s spawn_env=> %s",input,Environment.get_current_dir());
+							out ls_status);	
 		print (ls_stdout);
 	} 
 	catch (SpawnError e) {
 		print ("Error: %s\n", e.message);
 	}
+}
+public string[] getHelp()
+{
+	return {"git","--help"};
+}
+public string[] getStatus()
+{
+	return {"git","status"};
+}
+public string[] showLog()
+{
+	return {"git","log"};
 }
 }
